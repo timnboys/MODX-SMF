@@ -1,11 +1,11 @@
-Changelog for MODX-SMF.
+Changelog for MODX-Blesta.
 
 1.0.0-rc
 ==============
-- Removed system setting "smf_forced_sync".
+- Removed system setting "blesta_forced_sync".
 - More detailed error log when received empty username for create.
-- Added public functions for adding and removing SMF integration hooks.
-- SMF hooks are removed on package uninstall.
+- Added public functions for adding and removing Blesta integration hooks.
+- Blesta hooks are removed on package uninstall.
 
 1.0.0-beta
 ==============
