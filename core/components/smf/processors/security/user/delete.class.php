@@ -10,7 +10,7 @@ class cmfUserDeleteProcessor extends modUserDeleteProcessor {
 	 * @return bool
 	 */
 	public function checkPermissions() {
-		return defined('SMF');
+		return defined('Blesta');
 	}
 
 }
