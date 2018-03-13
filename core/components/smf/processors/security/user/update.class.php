@@ -4,7 +4,7 @@ if (!class_exists('modUserUpdateProcessor')) {
 	require MODX_CORE_PATH . 'model/modx/processors/security/user/update.class.php';
 }
 
-class cmfUserUpdateProcessor extends modUserUpdateProcessor {
+class blestaUserUpdateProcessor extends modUserUpdateProcessor {
 
 	/**
 	 * @return bool
@@ -34,4 +34,4 @@ class cmfUserUpdateProcessor extends modUserUpdateProcessor {
 
 }
 
-return 'cmfUserUpdateProcessor';
+return 'blestaUserUpdateProcessor';
