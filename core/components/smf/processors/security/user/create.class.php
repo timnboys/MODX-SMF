@@ -4,7 +4,7 @@ if (!class_exists('modUserCreateProcessor')) {
 	require MODX_CORE_PATH . 'model/modx/processors/security/user/create.class.php';
 }
 
-class cmfUserCreateProcessor extends modUserCreateProcessor {
+class blestaUserCreateProcessor extends modUserCreateProcessor {
 
 	/**
 	 * @return bool
@@ -28,4 +28,4 @@ class cmfUserCreateProcessor extends modUserCreateProcessor {
 
 }
 
-return 'cmfUserCreateProcessor';
+return 'blestaUserCreateProcessor';
