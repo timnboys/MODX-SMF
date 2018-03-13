@@ -6,7 +6,7 @@ if (defined('MODX_API_MODE')) {
 	return;
 }
 $basePath = dirname(dirname(dirname(dirname(dirname(__FILE__)))));
-global $modx, $MODX_SMF;
+global $modx, $MODX_BLESTA;
 
 define('MODX_API_MODE', true);
 require $basePath . '/index.php';
@@ -15,7 +15,7 @@ $modx->getService('error', 'error.modError');
 $modx->setLogLevel(modX::LOG_LEVEL_ERROR);
 $modx->setLogTarget('FILE');
 
-$MODX_SMF = $modx->getService('modx_smf', 'MODX_SMF', $modx->getOption('smf_core_path', null, $modx->getOption('core_path') . 'components/smf/') . 'model/');
+$MODX_BLESTA = $modx->getService('modx_blesta', 'MODX_BLESTA', $modx->getOption('blesta_core_path', null, $modx->getOption('core_path') . 'components/blesta/') . 'model/');
 
 
 // integrate_profile_save hack for 2.0
@@ -30,7 +30,7 @@ if (!empty($_GET['action']) && preg_match('#^profile;area=account;u=(\d+);save#'
 		);
 		foreach ($data as $k => $v) {
 			if (isset($_POST[$v]) && $user_info[$k] != $_POST[$v]) {
-				$MODX_SMF::smfOnUserUpdate(array($user_info['username']), $v, $_POST[$v]);
+				$MODX_BLESTA::blestaOnUserUpdate(array($user_info['username']), $v, $_POST[$v]);
 			}
 		}
 	}
