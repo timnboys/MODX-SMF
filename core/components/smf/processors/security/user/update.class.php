@@ -10,7 +10,7 @@ class cmfUserUpdateProcessor extends modUserUpdateProcessor {
 	 * @return bool
 	 */
 	public function checkPermissions() {
-		return defined('SMF');
+		return defined('Blesta');
 	}
 
 
