@@ -1,20 +1,20 @@
 <?php
 
 /**
- * The base class for SMF.
+ * The base class for BLESTA.
  */
-class MODX_SMF {
+class MODX_BLESTA {
 	/** @var modX $modx */
 	public $modx;
-	/** @var array $smfHooks */
-	protected $_smfHooks = array(
-		'integrate_login' => 'MODX_SMF::smfOnUserLogin',
-		'integrate_logout' => 'MODX_SMF::smfOnUserLogout',
-		'integrate_reset_pass' => 'MODX_SMF::smfOnUserResetPass',
-		'integrate_activate' => 'MODX_SMF::smfOnUserActivate',
-		'integrate_change_member_data' => 'MODX_SMF::smfOnUserUpdate',
-		'integrate_register' => 'MODX_SMF::smfOnUserRegister',
-		'integrate_delete_member' => 'MODX_SMF::smfOnUserDelete',
+	/** @var array $blestaHooks */
+	protected $_blestaHooks = array(
+		'integrate_login' => 'MODX_BLESTA::blestaOnUserLogin',
+		'integrate_logout' => 'MODX_BLESTA::blestaOnUserLogout',
+		'integrate_reset_pass' => 'MODX_BLESTA::blestaOnUserResetPass',
+		'integrate_activate' => 'MODX_BLESTA::blestaOnUserActivate',
+		'integrate_change_member_data' => 'MODX_BLESTA::blestaOnUserUpdate',
+		'integrate_register' => 'MODX_BLESTA::blestaOnUserRegister',
+		'integrate_delete_member' => 'MODX_BLESTA::blestaOnUserDelete',
 	);
 	/** @var modUser $_user */
 	private $_user = null;
@@ -29,13 +29,13 @@ class MODX_SMF {
 	function __construct(modX &$modx, array $config = array()) {
 		$this->modx =& $modx;
 
-		$corePath = $this->modx->getOption('smf_core_path', $config, $this->modx->getOption('core_path') . 'components/smf/');
-		//$assetsUrl = $this->modx->getOption('smf_assets_url', $config, $this->modx->getOption('assets_url') . 'components/smf/');
-		$smfPath = $this->modx->getOption('smf_path', $this->modx->config, '{base_path}forum/', true);
-		$smfPath = str_replace('{base_path}', MODX_BASE_PATH, rtrim(trim($smfPath), '/')) . '/';
-		$smfPath = preg_replace('#/+#', '/', $smfPath);
-		if ($smfPath[0] != '/') {
-			$smfPath = MODX_BASE_PATH . $smfPath;
+		$corePath = $this->modx->getOption('blesta_core_path', $config, $this->modx->getOption('core_path') . 'components/blesta/');
+		//$assetsUrl = $this->modx->getOption('blesta_assets_url', $config, $this->modx->getOption('assets_url') . 'components/blesta/');
+		$blestaPath = $this->modx->getOption('blesta_path', $this->modx->config, 'portal.{base_path}/cms', true);
+		$blestaPath = str_replace('{base_path}', MODX_BASE_PATH, rtrim(trim($blestaPath), '/')) . '/';
+		$blestaPath = preg_replace('#/+#', '/', $blestaPath);
+		if ($blestaPath[0] != '/') {
+			$blestaPath = MODX_BASE_PATH . $blestaPath;
 		}
 
 		$this->config = array_merge(array(
@@ -43,11 +43,11 @@ class MODX_SMF {
 			'modelPath' => $corePath . 'model/',
 			'processorsPath' => $corePath . 'processors/',
 			'controllersPath' => $corePath . 'controllers/',
-			'smfPath' => $smfPath,
+			'blestaPath' => $blestaPath,
 		), $config);
 
-		$this->modx->lexicon->load('smf:default');
-		$this->_loadSMF();
+		$this->modx->lexicon->load('blesta:default');
+		$this->_loadBLESTA();
 	}
 
 
@@ -76,16 +76,16 @@ class MODX_SMF {
 	 */
 	public function addUserToMODX($username) {
 		if (empty($username)) {
-			$this->modx->log(modX::LOG_LEVEL_ERROR, "[SMF] Could not add new user to MODX: empty username");
+			$this->modx->log(modX::LOG_LEVEL_ERROR, "[BLESTA] Could not add new user to MODX: empty username");
 			$this->logCallTrace();
 
 			return null;
 		}
 
-		if ($data = smfapi_getUserByUsername($username)) {
+		if ($data = blestaapi_getUserByUsername($username)) {
 			$create = array(
 				'username' => $username,
-				'password' => sha1(rand() + time()),
+				'password' => $this->bcrypthashing(rand() + time()),
 				'fullname' => @$data['real_name'],
 				'email' => @$data['email_address'],
 				'active' => @$data['is_activated'],
@@ -97,7 +97,7 @@ class MODX_SMF {
 			/** @var modProcessorResponse $response */
 			$response = $this->runProcessor('security/user/create', $create);
 			if ($response->isError()) {
-				$this->modx->log(modX::LOG_LEVEL_ERROR, "[SMF] Could not add new user \"{$username}\" to MODX: " . print_r($response->getAllErrors(), true));
+				$this->modx->log(modX::LOG_LEVEL_ERROR, "[BLESTA] Could not add new user \"{$username}\" to MODX: " . print_r($response->getAllErrors(), true));
 			}
 			elseif ($user = $this->modx->getObject('modUser', array('username' => $username))) {
 				return $user;
@@ -106,16 +106,22 @@ class MODX_SMF {
 
 		return null;
 	}
-
-
+        /**
+	@param $plaintextohash
+	@return passwordhash(string)
+	*/
+        public function bcrypthashing($plaintexttohash) {
+	$options = ['cost' => 11];
+        return password_hash($plaintexttohash, PASSWORD_BCRYPT, $options)."\n";
+	}
 	/**
 	 * @param $username
 	 *
 	 * @return int|bool
 	 */
-	public function addUserToSMF($username) {
+	public function addUserToBLESTA($username) {
 		if (empty($username)) {
-			$this->modx->log(modX::LOG_LEVEL_ERROR, "[SMF] Could not add new user to SMF: empty username");
+			$this->modx->log(modX::LOG_LEVEL_ERROR, "[BLESTA-MODX] Could not add new user to BLESTA: empty username");
 			$this->logCallTrace();
 
 			return null;
@@ -130,33 +136,33 @@ class MODX_SMF {
 			/** @var modUserProfile $profile */
 			$profile = $user->getOne('Profile');
 			$create = array(
-				'member_name' => $user->username,
+				'username' => $user->username,
 				'email' => $profile->email,
 				'password' => !empty($password)
 					? $password
-					: sha1(rand() + time()),
-				'require' => $user->active && !$profile->blocked
-					? 'nothing'
-					: '',
-				'real_name' => !empty($profile->fullname)
+					: $this->bcrypthashing(rand() + time()),
+				'status' => $user->active && !$profile->blocked
+					? 'active'
+					: 'inactive',
+				'firstname' => !empty($profile->fullname)
 					? $profile->fullname
 					: $user->username,
-				'date_registered' => !empty($user->createdon)
-					? $user->createdon
-					: time(),
-				'birthdate' => !empty($profile->dob)
-					? $profile->dob
-					: '0000-00-00',
-				'website_url' => $profile->website,
-				'location' => $profile->city,
+				'lastname' => !empty($profile->fullname)
+					? $profile->fullname
+					: $user->username,
+				'company' => $profile->website,
+				'city' => $profile->city,
+				'state' => '',
+				'user_id' => $user->id,
+				'client_group_id' => '1',
 			);
 
-			$response = smfapi_registerMember($create);
+			$response = blestaapi_registerMember($create);
 			if (is_int($response)) {
 				return $response;
 			}
 			elseif (is_array($response)) {
-				$this->modx->log(modX::LOG_LEVEL_ERROR, "[SMF] Could not add new user \"{$username}\" {$this->modx->event->name} to SMF: " . print_r($response, true));
+				$this->modx->log(modX::LOG_LEVEL_ERROR, "[Blesta] Could not add new user \"{$username}\" {$this->modx->event->name} to BLESTA: " . print_r($response, true));
 			}
 		}
 
@@ -168,7 +174,7 @@ class MODX_SMF {
 	 * @param array $data
 	 */
 	public function OnUserBeforeSave(array $data) {
-		if (!defined('SMF') || SMF != 'API' || $data['mode'] != 'upd') {
+		if (!defined('Blesta') || Blesta != 'API' || $data['mode'] != 'upd') {
 			return;
 		}
 		/** @var modUser $user */
@@ -187,7 +193,7 @@ class MODX_SMF {
 	 * @param array $data
 	 */
 	public function OnUserSave(array $data) {
-		if (!defined('SMF') || SMF != 'API') {
+		if (!defined('Blesta') || Blesta != 'API') {
 			return;
 		}
 		/** @var modUser $user */
@@ -205,26 +211,26 @@ class MODX_SMF {
 		$username = !empty($this->_user)
 			? $this->_user->username
 			: $user->username;
-		if (!smfapi_getUserByUsername($username)) {
-			$this->addUserToSMF($user->username);
+		if (!blestaapi_getUserByUsername($username)) {
+			$this->addUserToBLESTA($user->username);
 		}
 		else {
 			$update = array(
-				'member_name' => 'username',
+				'username' => 'username',
 				'email_address' => 'email',
-				'real_name' => 'fullname',
-				'date_registered' => 'createdon',
-				'birthdate' => 'dob',
-				'website_url' => 'website',
-				'location' => 'city',
-				'gender' => 'gender',
+				'firstname' => 'fullname',
+				'lastname' => 'fullname',
+				'company' => 'website',
+				'state' => '',
+				'user_id' => 'id',
+				'client_group_id' => '1',
 			);
 
 			// New MODX user
 			if (empty($this->_user)) {
 				/*
-				if (!$this->modx->getOption('smf_forced_sync')) {
-					$this->modx->log(modX::LOG_LEVEL_ERROR, "[SMF] Could not update existing SMF user \"{$username}\" because of \"smf_forced_sync\" is disabled");
+				if (!$this->modx->getOption('blesta_forced_sync')) {
+					$this->modx->log(modX::LOG_LEVEL_ERROR, "[Blesta-MODX] Could not update existing Blesta user \"{$username}\" because of \"blesta_forced_sync\" is disabled");
 
 					return;
 				}
@@ -232,8 +238,8 @@ class MODX_SMF {
 				$new = array_merge($user->toArray(), $profile->toArray());
 				foreach ($update as $k => $v) {
 					if (!empty($new[$v])) {
-						if ($k == 'birthdate') {
-							$update[$k] = date('Y-m-d', $new[$v]);
+						if ($k == 'user_id') {
+							$update[$k] = $user->id;
 						}
 						else {
 							$update[$k] = $new[$v];
@@ -253,8 +259,8 @@ class MODX_SMF {
 				$new = array_merge($user->toArray(), $profile->toArray());
 				foreach ($update as $k => $v) {
 					if ($new[$v] != $current[$v]) {
-						if ($k == 'birthdate') {
-							$update[$k] = date('Y-m-d', $new[$v]);
+						if ($k == 'user_id') {
+							$update[$k] = $user->id;
 						}
 						else {
 							$update[$k] = $new[$v];
@@ -272,19 +278,19 @@ class MODX_SMF {
 			}
 
 			if (!empty($password)) {
-				$update['passwd'] = sha1(strtolower($username) . smfapi_unHtmlspecialchars($password));
+				$update['passwd'] = $this->bcrypthashing(strtolower($username) . blestaapi_unHtmlspecialchars($password));
 			}
 
 			if (!empty($update)) {
-				$response = smfapi_updateMemberData($username, $update);
+				$response = blestaapi_updateMemberData($username, $update);
 				if (is_array($response)) {
-					$this->modx->log(modX::LOG_LEVEL_ERROR, "[SMF] Could not update user \"{$username}\" {$this->modx->event->name} in SMF: " . print_r($response, true));
+					$this->modx->log(modX::LOG_LEVEL_ERROR, "[MODX-Blesta] Could not update user \"{$username}\" {$this->modx->event->name} in Blesta: " . print_r($response, true));
 				}
 				elseif (!empty($update['passwd'])) {
-					$contexts = $this->smfGetContexts();
+					$contexts = $this->blestaGetContexts();
 					if (in_array($this->modx->context->key, $contexts) && $this->modx->user->username == $user->username) {
-						smfapi_logout($username);
-						smfapi_login($user->username);
+						blestaapi_logout($username);
+						blestaapi_login($user->username);
 					}
 				}
 			}
@@ -296,24 +302,24 @@ class MODX_SMF {
 	 * @param array $data
 	 */
 	public function OnUserChangePassword(array $data) {
-		if (!defined('SMF') || SMF != 'API') {
+		if (!defined('Blesta') || Blesta != 'API') {
 			return;
 		}
 
-		if (!smfapi_getUserByUsername($data['user']->username)) {
-			if (!$this->addUserToSMF($data['user']->username)) {
+		if (!blestaapi_getUserByUsername($data['user']->username)) {
+			if (!$this->addUserToBLESTA($data['user']->username)) {
 				return;
 			}
 		}
 
-		smfapi_updateMemberData($data['user']->username, array(
-			'password' => sha1(strtolower($data['user']->username) . smfapi_unHtmlspecialchars($data['newpassword'])),
+		blestaapi_updateMemberData($data['user']->username, array(
+			'password' => $this->bcrypthashing(strtolower($data['user']->username) . blestaapi_unHtmlspecialchars($data['newpassword'])),
 		));
 
-		$contexts = $this->smfGetContexts();
+		$contexts = $this->blestaGetContexts();
 		if (in_array($this->modx->context->key, $contexts) && $this->modx->user->username == $data['user']->username) {
-			smfapi_logout($data['user']->username);
-			smfapi_login($data['user']->username);
+			blestaapi_logout($data['user']->username);
+			blestaapi_login($data['user']->username);
 			@session_write_close();
 		}
 	}
@@ -323,11 +329,11 @@ class MODX_SMF {
 	 * @param array $data
 	 */
 	public function OnUserRemove(array $data) {
-		if (!defined('SMF') || SMF != 'API') {
+		if (!defined('Blesta') || Blesta != 'API') {
 			return;
 		}
 
-		smfapi_deleteMembers($data['user']->username);
+		blestaapi_deleteMembers($data['user']->username);
 	}
 
 
@@ -335,16 +341,16 @@ class MODX_SMF {
 	 * @param array $data
 	 */
 	public function OnWebLogin(array $data) {
-		if (!defined('SMF') || SMF != 'API') {
+		if (!defined('Blesta') || Blesta != 'API') {
 			return;
 		}
 
-		if (!smfapi_getUserByUsername($data['user']->username)) {
-			if (!$this->addUserToSMF($data['user']->username)) {
+		if (!blestaapi_getUserByUsername($data['user']->username)) {
+			if (!$this->addUserToBLESTA($data['user']->username)) {
 				return;
 			}
 		}
-		smfapi_login($data['user']->username, $data['attributes']['lifetime']);
+		blestaapi_login($data['user']->username, $data['attributes']['lifetime']);
 
 		@session_write_close();
 	}
@@ -354,60 +360,60 @@ class MODX_SMF {
 	 * @param array $data
 	 */
 	public function OnWebLogout(array $data) {
-		if (!defined('SMF') || SMF != 'API') {
+		if (!defined('Blesta') || Blesta != 'API') {
 			return;
 		}
 
-		if (!smfapi_getUserByUsername($data['user']->username)) {
-			if (!$this->addUserToSMF($data['user']->username)) {
+		if (!blestaapi_getUserByUsername($data['user']->username)) {
+			if (!$this->addUserToBLESTA($data['user']->username)) {
 				return;
 			}
 		}
-		smfapi_logout($data['username']);
+		blestaapi_logout($data['username']);
 
 		@session_write_close();
 	}
 
 
-	/** SMF functions */
+	/** BLESTA functions */
 
 
 	/**
 	 *
 	 */
-	protected function _loadSMF() {
-		if (defined('SMF') && SMF == 'API') {
+	protected function _loadBLESTA() {
+		if (defined('Blesta') && Blesta == 'API') {
 			return;
 		}
 
-		$settings = $this->config['smfPath'] . 'Settings.php';
-		$api = $this->config['controllersPath'] . 'smf-api.php';
+		$settings = $this->config['blestaPath'] . 'Settings.php';
+		$api = $this->config['controllersPath'] . 'blesta-api.php';
 
 		if (!file_exists($settings)) {
-			$this->modx->log(modX::LOG_LEVEL_ERROR, "[SMF] Could not load SMF settings at \"{$settings}\"");
+			$this->modx->log(modX::LOG_LEVEL_ERROR, "[BLESTA_MODX] Could not load Blesta settings at \"{$settings}\"");
 
 			return;
 		}
 		else {
-			file_put_contents($this->config['controllersPath'] . 'smfapi_settings.txt', base64_encode($settings));
+			file_put_contents($this->config['controllersPath'] . 'blestaapi_settings.txt', base64_encode($settings));
 			/** @noinspection PhpIncludeInspection */
 			require_once $api;
 		}
 
-		$this->smfAddHooks();
+		$this->blestaAddHooks();
 	}
 
 
 	/**
 	 * @return array
 	 */
-	public function smfGetContexts() {
+	public function blestaGetContexts() {
 		$contexts = array();
 
 		$c = $this->modx->newQuery('modContext', array('key:!=' => 'mgr'));
 		$c->select('key');
 		$c->sortby('rank', 'ASC');
-		$setting = $this->modx->getOption('smf_user_contexts');
+		$setting = $this->modx->getOption('blesta_user_contexts');
 		if (!empty($setting)) {
 			$setting = array_map('trim', explode(',', $setting));
 			$c->where(array('key:IN' => $setting));
@@ -424,9 +430,9 @@ class MODX_SMF {
 	/**
 	 * @return array|null
 	 */
-	public function smfGetUserGroups() {
+	public function blestaGetUserGroups() {
 		$groups = array();
-		if ($user_groups = $this->modx->getOption('smf_user_groups')) {
+		if ($user_groups = $this->modx->getOption('blesta_user_groups')) {
 			$tmp = array_map('trim', explode(',', $user_groups));
 			foreach ($tmp as $v) {
 				if (strpos($v, ':') !== false) {
@@ -457,18 +463,18 @@ class MODX_SMF {
 	 * @param $password_hash
 	 * @param $lifetime
 	 */
-	static function smfOnUserLogin($username, $password_hash, $lifetime) {
-		global $modx, $MODX_SMF;
+	static function blestaOnUserLogin($username, $password_hash, $lifetime) {
+		global $modx, $MODX_BLESTA;
 
 		$lifetime *= 60;
 
 		/** @var modUser $user */
 		if (!$user = $modx->getObject('modUser', array('username' => $username))) {
-			$user = $MODX_SMF->addUserToMODX($username);
+			$user = $MODX_BLESTA->addUserToMODX($username);
 		}
 		if ($user && $user->active && !$user->Profile->blocked) {
 			$modx->user = $user;
-			$contexts = $MODX_SMF->smfGetContexts();
+			$contexts = $MODX_BLESTA->blestaGetContexts();
 
 			$modx->invokeEvent('OnWebAuthentication', array(
 				'user' => $user,
@@ -504,10 +510,10 @@ class MODX_SMF {
 	/**
 	 *
 	 */
-	static function smfOnUserLogout() {
-		global $modx, $MODX_SMF;
+	static function blestaOnUserLogout() {
+		global $modx, $MODX_BLESTA;
 
-		$contexts = $MODX_SMF->smfGetContexts();
+		$contexts = $MODX_BLESTA->blestaGetContexts();
 		$modx->invokeEvent('OnBeforeWebLogout', array(
 			'userid' => $modx->user->id,
 			'username' => $modx->user->username,
@@ -539,21 +545,21 @@ class MODX_SMF {
 	 * @param $username
 	 * @param $password
 	 */
-	static function smfOnUserResetPass($old_username, $username, $password) {
-		global $modx, $MODX_SMF;
+	static function blestaOnUserResetPass($old_username, $username, $password) {
+		global $modx, $MODX_BLESTA;
 
 		/** @var modUser $user */
 		if (!$user = $modx->getObject('modUser', array('username' => $username))) {
-			$user = $MODX_SMF->addUserToMODX($username);
+			$user = $MODX_BLESTA->addUserToMODX($username);
 		}
 		if ($user) {
 			/** @var modProcessorResponse $response */
-			$response = $MODX_SMF->runProcessor('security/user/update', array(
+			$response = $MODX_BLESTA->runProcessor('security/user/update', array(
 				'id' => $user->id,
 				'password' => $password,
 			));
 			if ($response->isError()) {
-				$modx->log(modX::LOG_LEVEL_ERROR, "[SMF] Could not reset password for user \"{$username}\": " . print_r($response->getAllErrors(), true));
+				$modx->log(modX::LOG_LEVEL_ERROR, "[MODX_BLESTA] Could not reset password for user \"{$username}\": " . print_r($response->getAllErrors(), true));
 			}
 		}
 	}
@@ -562,8 +568,8 @@ class MODX_SMF {
 	/**
 	 * @param $options
 	 */
-	static function smfOnUserRegister($options) {
-		global $modx, $MODX_SMF;
+	static function blestaOnUserRegister($options) {
+		global $modx, $MODX_BLESTA;
 
 		$username = @$options['username'];
 		$password = @$options['password'];
@@ -572,18 +578,18 @@ class MODX_SMF {
 
 		/**@var modProcessorResponse $response */
 		if (!empty($username)) {
-			$groups = $MODX_SMF->smfGetUserGroups();
+			$groups = $MODX_BLESTA->blestaGetUserGroups();
 
 			/** @var modUser $user */
 			if ($user = $modx->getObject('modUser', array('username' => $username))) {
 				/*
-				if (!$modx->getOption('smf_forced_sync')) {
-					$modx->log(modX::LOG_LEVEL_ERROR, "[SMF] Could not update existing MODX user \"{$username}\" because of \"smf_forced_sync\" is disabled");
+				if (!$modx->getOption('blesta_forced_sync')) {
+					$modx->log(modX::LOG_LEVEL_ERROR, "[BLESTA] Could not update existing MODX user \"{$username}\" because of \"blesta_forced_sync\" is disabled");
 
 					return;
 				}
 				*/
-				$response = $MODX_SMF->runProcessor('security/user/update', array(
+				$response = $MODX_BLESTA->runProcessor('security/user/update', array(
 					'id' => $user->id,
 					'username' => $username,
 					'password' => $password,
@@ -592,7 +598,7 @@ class MODX_SMF {
 				));
 			}
 			else {
-				$response = $MODX_SMF->runProcessor('security/user/create', array(
+				$response = $MODX_BLESTA->runProcessor('security/user/create', array(
 					'username' => $username,
 					'fullname' => $username,
 					'password' => $password,
@@ -603,7 +609,7 @@ class MODX_SMF {
 			}
 
 			if ($response->isError()) {
-				$modx->log(modX::LOG_LEVEL_ERROR, "[SMF] Could not register user \"{$username}\": " . print_r($response->getAllErrors(), true));
+				$modx->log(modX::LOG_LEVEL_ERROR, "[BLESTA_MODX] Could not register user \"{$username}\": " . print_r($response->getAllErrors(), true));
 			}
 		}
 	}
@@ -612,19 +618,19 @@ class MODX_SMF {
 	/**
 	 * @param $username
 	 */
-	static function smfOnUserActivate($username) {
-		global $modx, $MODX_SMF;
+	static function blestaOnUserActivate($username) {
+		global $modx, $MODX_BLESTA;
 
 		/** @var modUser $user */
 		if (!$user = $modx->getObject('modUser', array('username' => $username))) {
-			$user = $MODX_SMF->addUserToMODX($username);
+			$user = $MODX_BLESTA->addUserToMODX($username);
 		}
 		if ($user && !$user->active) {
-			$response = $MODX_SMF->runProcessor('security/user/activatemultiple', array(
+			$response = $MODX_BLESTA->runProcessor('security/user/activatemultiple', array(
 				'users' => $user->id,
 			));
 			if ($response->isError()) {
-				$modx->log(modX::LOG_LEVEL_ERROR, "[SMF] Could not activate user \"{$username}\": " . print_r($response->getAllErrors(), true));
+				$modx->log(modX::LOG_LEVEL_ERROR, "[MODX_BLESTA] Could not activate user \"{$username}\": " . print_r($response->getAllErrors(), true));
 			}
 		}
 	}
@@ -635,18 +641,18 @@ class MODX_SMF {
 	 * @param $key
 	 * @param $value
 	 */
-	static function smfOnUserUpdate($usernames, $key, $value) {
-		global $modx, $MODX_SMF;
+	static function blestaOnUserUpdate($usernames, $key, $value) {
+		global $modx, $MODX_BLESTA;
 
 		foreach ($usernames as $username) {
 			/** @var modUser $user */
 			if (!$user = $modx->getObject('modUser', array('username' => $username))) {
-				$user = $MODX_SMF->addUserToMODX($username);
+				$user = $MODX_BLESTA->addUserToMODX($username);
 			}
 			if ($user) {
 				$data = array(
 					'id' => $user->id,
-					//'groups' => $MODX_SMF->smfGetUserGroups(),
+					//'groups' => $MODX_BLESTA->blestaGetUserGroups(),
 				);
 				// Convert values
 				switch ($key) {
@@ -677,9 +683,9 @@ class MODX_SMF {
 						}
 						break;
 				}
-				$response = $MODX_SMF->runProcessor('security/user/update', $data);
+				$response = $MODX_BLESTA->runProcessor('security/user/update', $data);
 				if ($response->isError()) {
-					$modx->log(modX::LOG_LEVEL_ERROR, "[SMF] Could not update user \"{$username}\": " . print_r($response->getAllErrors(), true));
+					$modx->log(modX::LOG_LEVEL_ERROR, "[BLESTA] Could not update user \"{$username}\": " . print_r($response->getAllErrors(), true));
 				}
 			}
 		}
@@ -689,17 +695,17 @@ class MODX_SMF {
 	/**
 	 * @param $uid
 	 */
-	static function smfOnUserDelete($uid) {
-		global $modx, $MODX_SMF;
+	static function blestaOnUserDelete($uid) {
+		global $modx, $MODX_BLESTA;
 
-		if ($data = smfapi_getUserById($uid)) {
+		if ($data = blestaapi_getUserById($uid)) {
 			$username = $data['member_name'];
 			if ($user = $modx->getObject('modUser', array('username' => $username))) {
-				$response = $MODX_SMF->runProcessor('security/user/delete', array(
+				$response = $MODX_BLESTA->runProcessor('security/user/delete', array(
 					'id' => $user->id,
 				));
 				if ($response->isError()) {
-					$modx->log(modX::LOG_LEVEL_ERROR, "[SMF] Could not delete user \"{$username}\": " . print_r($response->getAllErrors(), true));
+					$modx->log(modX::LOG_LEVEL_ERROR, "[BLESTA] Could not delete user \"{$username}\": " . print_r($response->getAllErrors(), true));
 				}
 			}
 		}
@@ -728,24 +734,24 @@ class MODX_SMF {
 
 
 	/**
-	 * * Add integration functions to SMF
+	 * * Add integration functions to BLESTA
 	 */
-	public function smfAddHooks() {
+	public function blestaAddHooks() {
 		global $modSettings;
 
-		$controller = $this->config['corePath'] . 'controllers/smf-include.php';
+		$controller = $this->config['corePath'] . 'controllers/blesta-include.php';
 
 		/**@var array $modSettings */
 		if (empty($modSettings['integrate_pre_include']) || $modSettings['integrate_pre_include'] != $controller) {
 			if (!function_exists('add_integration_function')) {
-				$smfPath = $this->config['smfPath'];
+				$blestaPath = $this->config['blestaPath'];
 				/** @noinspection PhpIncludeInspection */
-				require $smfPath . 'Sources/Subs.php';
+				require $blestaPath . 'Sources/Subs.php';
 				/** @noinspection PhpIncludeInspection */
-				require $smfPath . 'Sources/Load.php';
+				require $blestaPath . 'Sources/Load.php';
 			}
 
-			$hooks = $this->_smfHooks;
+			$hooks = $this->_blestaHooks;
 			$hooks['integrate_pre_include'] = $controller;
 
 			foreach ($hooks as $hook => $value) {
@@ -762,20 +768,20 @@ class MODX_SMF {
 
 
 	/**
-	 * Remove integration functions from to SMF
+	 * Remove integration functions from to BLESTA
 	 */
-	public function smfRemoveHooks() {
+	public function blestaRemoveHooks() {
 		global $modSettings;
 
 		if (!function_exists('add_integration_function')) {
-			$smfPath = $this->config['smfPath'];
+			$blestaPath = $this->config['blestaPath'];
 			/** @noinspection PhpIncludeInspection */
-			require $smfPath . 'Sources/Subs.php';
+			require $blestaPath . 'Sources/Subs.php';
 			/** @noinspection PhpIncludeInspection */
-			require $smfPath . 'Sources/Load.php';
+			require $blestaPath . 'Sources/Load.php';
 		}
 
-		$hooks = $this->_smfHooks;
+		$hooks = $this->_blestaHooks;
 		$hooks['integrate_pre_include'] = '';
 
 		foreach ($hooks as $hook => $value) {
