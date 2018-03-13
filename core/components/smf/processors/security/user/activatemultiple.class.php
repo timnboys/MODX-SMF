@@ -10,7 +10,7 @@ class cmfUserActivateMultipleProcessor extends modUserActivateMultipleProcessor 
 	 * @return bool
 	 */
 	public function checkPermissions() {
-		return defined('SMF');
+		return defined('Blesta');
 	}
 
 }
