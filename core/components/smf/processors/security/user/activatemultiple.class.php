@@ -4,7 +4,7 @@ if (!class_exists('modUserActivateMultipleProcessor')) {
 	require MODX_CORE_PATH . 'model/modx/processors/security/user/activatemultiple.class.php';
 }
 
-class cmfUserActivateMultipleProcessor extends modUserActivateMultipleProcessor {
+class blestaUserActivateMultipleProcessor extends modUserActivateMultipleProcessor {
 
 	/**
 	 * @return bool
@@ -15,4 +15,4 @@ class cmfUserActivateMultipleProcessor extends modUserActivateMultipleProcessor 
 
 }
 
-return 'cmfUserActivateMultipleProcessor';
+return 'blestaUserActivateMultipleProcessor';
