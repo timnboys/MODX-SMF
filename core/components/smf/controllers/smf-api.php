@@ -1,19 +1,19 @@
 <?php
 
 /**
- * Simple Machines Forum(SMF) API for SMF 2.0
+ * Simple Machines Forum(BLESTA) API for BLESTA 2.0
  *
- * Use this to integrate your SMF version 2.0 forum with 3rd party software
+ * Use this to integrate your BLESTA version 2.0 forum with 3rd party software
  * If you need help using this script or integrating your forum with other
  * software, feel free to contact andre@r2bconcepts.com
  *
- * @package   SMF 2.0 API
+ * @package   BLESTA 2.0 API
  * @author    Simple Machines http://www.simplemachines.org
  * @author    Andre Nickatina <andre@r2bconcepts.com>
  * @copyright 2011 Simple Machines
  * @link      http://www.simplemachines.org Simple Machines
  * @link      http://www.r2bconcepts.com Red2Black Concepts
- * @license   http://www.simplemachines.org/about/smf/license.php BSD
+ * @license   http://www.simplemachines.org/about/blesta/license.php BSD
  * @version   0.1.2
  *
  * NOTICE OF LICENSE
@@ -46,160 +46,160 @@
 
 /*
     This file includes functions that may help integration with other scripts
- 	and programs, such as portals. It is independent of SMF, and meant to run
+ 	and programs, such as portals. It is independent of BLESTA, and meant to run
  	without disturbing your script. It defines several functions, most of
- 	which start with the smfapi_ prefix. These are:
+ 	which start with the blestaapi_ prefix. These are:
 
 
-    array  smfapi_getUserByEmail(string $email)
+    array  blestaapi_getUserByEmail(string $email)
         - returns all user info from the db in an array
 
-    array  smfapi_getUserById(int $id)
+    array  blestaapi_getUserById(int $id)
         - returns all user info from the db in an array
 
-    array  smfapi_getUserByUsername(string $username)
+    array  blestaapi_getUserByUsername(string $username)
         - returns all user info from the db in an array
 
-    array  smfapi_getUserData(mixed $identifier)
+    array  blestaapi_getUserData(mixed $identifier)
         - returns all user info from the db in an array
         - will accept email address, username or member id
 
-    bool   smfapi_login(mixed $identifier, int $cookieLength)
+    bool   blestaapi_login(mixed $identifier, int $cookieLength)
         - sets cookie and session for user specified
         - will accept email address, username or member id
         - does no authentication; do that before calling this
 
-    bool   smfapi_authenticate(mixed $username, string $password, bool $encrypted)
+    bool   blestaapi_authenticate(mixed $username, string $password, bool $encrypted)
         - authenticates a username/password combo
         - will accept email address, username or member id
 
-    bool   smfapi_logout(string $username)
+    bool   blestaapi_logout(string $username)
         - logs the specified user out
         - will accept email address, username or member id
 
-    bool   smfapi_deleteMembers(int || int array $users)
+    bool   blestaapi_deleteMembers(int || int array $users)
         - deletes member(s) by their int member id
         - will return true unless $users empty
         - will accept email address, username or member id or a mixed array
 
-    int    smfapi_registerMember(array $regOptions)
+    int    blestaapi_registerMember(array $regOptions)
         - register a member
         - $regOptions will contain the variables from the db
-        - dump out the results of smfapi_getUserData($user) to see them all
+        - dump out the results of blestaapi_getUserData($user) to see them all
         - required variables are: 'member_name' (unique), 'email' (unique), 'password'
 
-    bool   smfapi_logError(string $error_message, string $error_type, string $file, int $line)
-        - logs an error message to the smf error log
+    bool   blestaapi_logError(string $error_message, string $error_type, string $file, int $line)
+        - logs an error message to the blesta error log
         - $error_type will be one of the following: 'general', 'critical', 'database', 'undefined_vars', 'user', 'template' or 'debug'
         - just use __FILE__ and __LINE__ as $file and $line unless you have other ambitions
 
-    true   smfapi_reloadSettings()
+    true   blestaapi_reloadSettings()
         - loads the $modSettings array
         - adds the following functions to the $smcFunc array:
              'entity_fix', 'htmlspecialchars', 'htmltrim', 'strlen', 'strpos', 'substr', 'strtolower', strtoupper', 'truncate', 'ucfirst' and 'ucwords'
 
-    true   smfapi_loadUserSettings(mixed $identifier)
+    true   blestaapi_loadUserSettings(mixed $identifier)
         - loads the $user_info array for user or guest
         - will accept email address, username or member id
         - if member data not found, will try cookie then session
 
-    true   smfapi_loadSession()
+    true   blestaapi_loadSession()
         - starts the session
 
     *Session functions*
-    true   smfapi_sessionOpen()
-    true   smfapi_sessionClose()
-    bool   smfapi_sessionRead()
-    bool   smfapi_sessionWrite()
-    bool   smfapi_sessionDestroy()
-    mixed  smfapi_sessionGC()
+    true   blestaapi_sessionOpen()
+    true   blestaapi_sessionClose()
+    bool   blestaapi_sessionRead()
+    bool   blestaapi_sessionWrite()
+    bool   blestaapi_sessionDestroy()
+    mixed  blestaapi_sessionGC()
 
-    bool   smfapi_loadDatabase()
+    bool   blestaapi_loadDatabase()
         - loads the db connection
         - adds the following fuctions to the $smcFunc array:
             'db_query', 'db_quote', 'db_fetch_assoc', 'db_fetch_row', 'db_free_result', 'db_insert', 'db_insert_id', 'db_num_rows',
             'db_data_seek', 'db_num_fields', 'db_escape_string', 'db_unescape_string', 'db_server_info', 'db_affected_rows',
             'db_transaction', 'db_error', 'db_select_db', 'db_title', 'db_sybase', 'db_case_sensitive' and 'db_escape_wildcard_string'
 
-    void   smfapi_cachePutData(string $key, mixed $value, int $ttl)
+    void   blestaapi_cachePutData(string $key, mixed $value, int $ttl)
         - puts data in the cache
 
-    mixed  smfapi_cacheGetData(string $key, int $ttl)
+    mixed  blestaapi_cacheGetData(string $key, int $ttl)
         - gets data from the cache
 
-    bool   smfapi_updateMemberData(mixed $member, array $data)
+    bool   blestaapi_updateMemberData(mixed $member, array $data)
         - change member data (email, password, name, etc.)
         - will accept email address, username or member id
         - data will be an associative array ('email_address' => 'newemail@address.com') etc.
 
-    true   smfapi_smfSeedGenerator()
+    true   blestaapi_blestaSeedGenerator()
         - generates random seed
 
-    bool   smfapi_updateSettings(array $changeArray, bool $update)
+    bool   blestaapi_updateSettings(array $changeArray, bool $update)
         - updates settings in $modSettings array and puts them in db
-        - called from smfapi_updateStats(), smfapi_deleteMessages() and smfapi_smfSeedGenerator()
+        - called from blestaapi_updateStats(), blestaapi_deleteMessages() and blestaapi_blestaSeedGenerator()
 
-    true   smfapi_setLoginCookie(int $cookie_length, int $id, string $password)
-        - called by smfapi_login() to set the cookie
+    true   blestaapi_setLoginCookie(int $cookie_length, int $id, string $password)
+        - called by blestaapi_login() to set the cookie
 
-    array  smfapi_urlParts(bool $local, bool $global)
-        - called by smfapi_setLoginCookie() to parse the url
+    array  blestaapi_urlParts(bool $local, bool $global)
+        - called by blestaapi_setLoginCookie() to parse the url
 
-    bool   smfapi_updateStats(string $type, int $parameter1, string $parameter2)
+    bool   blestaapi_updateStats(string $type, int $parameter1, string $parameter2)
         - update forum member stats
         - called when registering or deleting a member
 
-    string smfapi_unHtmlspecialchars(string $string)
+    string blestaapi_unHtmlspecialchars(string $string)
         - fixes strings with special characters
         - called when encrypting the password for checking
 
-    bool   smfapi_deleteMessages(array $personal_messages, string $folder, int || array $owner)
-        - called by smfapi_deleteMembers()
+    bool   blestaapi_deleteMessages(array $personal_messages, string $folder, int || array $owner)
+        - called by blestaapi_deleteMembers()
 
-    string smfapi_generateValidationCode()
+    string blestaapi_generateValidationCode()
         - used to generate a 10 char alpha validation code during registration
 
-    bool   smfapi_isOnline(mixed $username)
+    bool   blestaapi_isOnline(mixed $username)
         - check if a user is online
         - will accept email address, username or member id
 
-    bool   smfapi_logOnline(mixed $username)
+    bool   blestaapi_logOnline(mixed $username)
         - log a user online
 
-    array  smfapi_getMatchingFile(array $files, string $search)
+    array  blestaapi_getMatchingFile(array $files, string $search)
         - find a file from an array
         - used to find Settings.php in case this script is not with it
 
-    array  smfapi_getDirectoryContents(string $directory, array $exempt, array $files)
+    array  blestaapi_getDirectoryContents(string $directory, array $exempt, array $files)
         - gets the contents of a directory and all subdirectories
-        - called by smfapi_getMatchingFile
+        - called by blestaapi_getMatchingFile
 
     ---------------------------------------------------------------------------
 	It also defines the following important variables:
 
 	$smcFunc => Array
     (
-        [db_query] => smf_db_query
-        [db_quote] => smf_db_quote
+        [db_query] => blesta_db_query
+        [db_quote] => blesta_db_quote
         [db_fetch_assoc] => mysql_fetch_assoc
         [db_fetch_row] => mysql_fetch_row
         [db_free_result] => mysql_free_result
-        [db_insert] => smf_db_insert
-        [db_insert_id] => smf_db_insert_id
+        [db_insert] => blesta_db_insert
+        [db_insert_id] => blesta_db_insert_id
         [db_num_rows] => mysql_num_rows
         [db_data_seek] => mysql_data_seek
         [db_num_fields] => mysql_num_fields
         [db_escape_string] => addslashes
         [db_unescape_string] => stripslashes
         [db_server_info] => mysql_get_server_info
-        [db_affected_rows] => smf_db_affected_rows
-        [db_transaction] => smf_db_transaction
+        [db_affected_rows] => blesta_db_affected_rows
+        [db_transaction] => blesta_db_transaction
         [db_error] => mysql_error
         [db_select_db] => mysql_select_db
         [db_title] =>
         [db_sybase] =>
         [db_case_sensitive] =>
-        [db_escape_wildcard_string] => smf_db_escape_wildcard_string
+        [db_escape_wildcard_string] => blesta_db_escape_wildcard_string
         [entity_fix] =>
         [htmlspecialchars] =>
         [htmltrim] =>
@@ -215,7 +215,7 @@
 
 	$modSettings => Array
     (
-        [smfVersion] =>
+        [blestaVersion] =>
         [news] =>
         [compactTopicPagesContiguous] =>
         [compactTopicPagesEnable] =>
@@ -452,7 +452,7 @@
 
     )
 
-    For even *more* member data use the function smfapi_getUserData()
+    For even *more* member data use the function blestaapi_getUserData()
     It will return an array with the following:
 
     $userdata => Array
@@ -521,11 +521,11 @@
 
 */
 
-// don't do anything if SMF is already loaded
-if (defined('SMF'))
+// don't do anything if BLESTA is already loaded
+if (defined('BLESTA'))
 	return true;
 
-define('SMF', 'API');
+define('BLESTA', 'API');
 
 // we're going to want a few globals... these are all set later
 // set from this script
@@ -537,16 +537,16 @@ global $webmaster_email, $cookiename, $db_type, $db_server, $db_name, $db_user;
 global $db_passwd, $db_prefix, $db_persist, $db_error_send, $boarddir, $sourcedir;
 global $cachedir, $db_last_error, $db_character_set;
 
-// set from smfapi_loadDatabase()
+// set from blestaapi_loadDatabase()
 global $db_connection, $smcFunc;
 
-// set from smfapi_reloadSettings()
+// set from blestaapi_reloadSettings()
 global $modSettings;
 
-// set from smfapi_loadSession()
+// set from blestaapi_loadSession()
 global $sc;
 
-// set from smfapi_loadUserSettings()
+// set from blestaapi_loadUserSettings()
 global $user_info;
 
 // turn off magic quotes
@@ -571,7 +571,7 @@ foreach (array('db_character_set', 'cachedir') as $variable) {
 }
 
 // if we have a saved settings location, try to load it first
-$saveFile = dirname(__FILE__) . '/smfapi_settings.txt';
+$saveFile = dirname(__FILE__) . '/blestaapi_settings.txt';
 $settings_path = '';
 if (file_exists($saveFile)) {
     $settings_path = base64_decode(file_get_contents($saveFile));
@@ -584,7 +584,7 @@ if (file_exists($saveFile)) {
 
 // manually add the location of your Settings.php here
 if (!isset($settings_path) || empty($settings_path)) {
-    // specify the settings path here if it's not in smf root and you want to speed things up
+    // specify the settings path here if it's not in blesta root and you want to speed things up
     // $settings_path = $_SERVER['DOCUMENT_ROOT'] . /path/to/Settings.php
     if (isset($settings_path) && !file_exists($settings_path)) {
         unset($settings_path);
@@ -600,8 +600,8 @@ if ((!isset($settings_path) || empty($settings_path)) && file_exists(dirname(__F
 if (!isset($settings_path) || empty($settings_path)) {
     $directory = $_SERVER['DOCUMENT_ROOT'] . '/';
     $exempt = array('.', '..');
-    $files = smfapi_getDirectoryContents($directory, $exempt);
-    $matches = smfapi_getMatchingFile($files, 'Settings.php');
+    $files = blestaapi_getDirectoryContents($directory, $exempt);
+    $matches = blestaapi_getMatchingFile($files, 'Settings.php');
 
     // we're going to search for it...
 	@set_time_limit(600);
@@ -613,11 +613,11 @@ if (!isset($settings_path) || empty($settings_path)) {
     if (1 == count($matches)) {
         $settings_path = $matches[0];
     } elseif (1 < count($matches)) {
-        $matches = smfapi_getMatchingFile($files, 'Settings_bak.php');
+        $matches = blestaapi_getMatchingFile($files, 'Settings_bak.php');
         $matches[0] = str_replace('_bak.php', '.php', $matches[0]);
         $settings_path = $matches[0];
     } else {
-        exit('Unable to load SMF settings file');
+        exit('Unable to load BLESTA settings file');
     }
 }
 
@@ -652,29 +652,29 @@ if (-1 == @version_compare(PHP_VERSION, '5.1')) {
 	require_once($sourcedir . '/Subs-Compat.php');
 }
 
-// create a variable to store some SMF specific functions in
+// create a variable to store some BLESTA specific functions in
 $smcFunc = array();
 
 // we won't put anything in this
 $context = array();
 
 // initate the database connection and define some database functions to use
-smfapi_loadDatabase();
+blestaapi_loadDatabase();
 
 // load settings
-smfapi_reloadSettings();
+blestaapi_reloadSettings();
 
 // create random seed if it's not already created
 if (empty($modSettings['rand_seed']) || mt_rand(1, 250) == 69) {
-	smfapi_smfSeedGenerator();
+	blestaapi_blestaSeedGenerator();
 }
 
 // start the session if there isn't one already...
-smfapi_loadSession();
+blestaapi_loadSession();
 
 
 // load the user and their cookie, as well as their settings.
-smfapi_loadUserSettings();
+blestaapi_loadUserSettings();
 
 /**
  * Gets the user's info from their email address
@@ -686,7 +686,7 @@ smfapi_loadUserSettings();
  * @return array $results containing the user info || bool false
  * @since  0.1.0
  */
-function smfapi_getUserByEmail($email='')
+function blestaapi_getUserByEmail($email='')
 {
     global $smcFunc;
 
@@ -724,7 +724,7 @@ function smfapi_getUserByEmail($email='')
  * @return array $results containing the user info || bool false
  * @since  0.1.2
  */
-function smfapi_getUserById($id='')
+function blestaapi_getUserById($id='')
 {
     global $smcFunc;
 
@@ -767,7 +767,7 @@ function smfapi_getUserById($id='')
  * @return array $results containing the user info || bool false
  * @since  0.1.0
  */
-function smfapi_getUserByUsername($username='')
+function blestaapi_getUserByUsername($username='')
 {
     global $smcFunc;
 
@@ -804,7 +804,7 @@ function smfapi_getUserByUsername($username='')
  * @return array $results containing the user info || bool false
  * @since  0.1.2
  */
-function smfapi_getUserData($username='')
+function blestaapi_getUserData($username='')
 {
     if ('' == $username) {
         return false;
@@ -815,14 +815,14 @@ function smfapi_getUserData($username='')
     // we'll try id || email, then username
     if (is_numeric($username)) {
         // number is most likely a member id
-        $user_data = smfapi_getUserById($username);
+        $user_data = blestaapi_getUserById($username);
     } else {
         // the email can't be purely numeric
-        $user_data = smfapi_getUserByEmail($username);
+        $user_data = blestaapi_getUserByEmail($username);
     }
 
     if (empty($user_data)) {
-        $user_data = smfapi_getUserByUsername($username);
+        $user_data = blestaapi_getUserByUsername($username);
     }
 
     if (empty($user_data)) {
@@ -836,7 +836,7 @@ function smfapi_getUserData($username='')
  * Logs the user in by setting the session cookie
  *
  * Be sure you've already authenticated the username/password
- * using smfapi_authenticate() or some other means because
+ * using blestaapi_authenticate() or some other means because
  * this function WILL set the correct session cookie for the
  * user you specify and they WILL be logged in
  *
@@ -845,23 +845,23 @@ function smfapi_getUserData($username='')
  * @return bool whether the login cookie was set or not
  * @since  0.1.2
  */
-function smfapi_login($username='', $cookieLength=525600)
+function blestaapi_login($username='', $cookieLength=525600)
 {
     global $scripturl, $user_info, $user_settings, $smcFunc;
 	global $cookiename, $maintenance, $modSettings, $sc, $sourcedir;
 
-    $user_data = smfapi_getUserData($username);
+    $user_data = blestaapi_getUserData($username);
 
     if (!$user_data || empty($user_data)) {
         return false;
     }
 
 	// cookie set, session too
-	smfapi_setLoginCookie(60 * $cookieLength, $user_data['id_member'], sha1($user_data['passwd']
+	blestaapi_setLoginCookie(60 * $cookieLength, $user_data['id_member'], sha1($user_data['passwd']
                    . $user_data['password_salt']));
 
 	// you've logged in, haven't you?
-	smfapi_updateMemberData($user_data['id_member'], array('last_login' => time(), 'member_ip' => $user_info['ip']));
+	blestaapi_updateMemberData($user_data['id_member'], array('last_login' => time(), 'member_ip' => $user_info['ip']));
 
 	// get rid of the online entry for that old guest....
 	$smcFunc['db_query']('', '
@@ -872,7 +872,7 @@ function smfapi_login($username='', $cookieLength=525600)
 		)
 	);
 
-    smfapi_loadUserSettings();
+    blestaapi_loadUserSettings();
 
 	return true;
 }
@@ -884,13 +884,13 @@ function smfapi_login($username='', $cookieLength=525600)
  *
  * @param  mixed $username the user's member name, email or member id
  * @param  string $password the password plaintext or encrypted in any of several
- *         methods including smf's method: sha1(strtolower($username) . $password)
+ *         methods including blesta's method: sha1(strtolower($username) . $password)
  * @param  bool $encrypted whether the password is encrypted or not. If you get
            this wrong we'll figure it out anyways, just saves some work if it's right
  * @return bool whether the user is authenticated or not
  * @since  0.1.2
  */
-function smfapi_authenticate($username='', $password='', $encrypted=true)
+function blestaapi_authenticate($username='', $password='', $encrypted=true)
 {
 
     global $scripturl, $user_info, $user_settings, $smcFunc;
@@ -901,7 +901,7 @@ function smfapi_authenticate($username='', $password='', $encrypted=true)
     }
     
     // just in case they used the email or member id...
-    $data = smfapi_getUserData($username);
+    $data = blestaapi_getUserData($username);
     if (empty($data)) {
         return false;
     } else {
@@ -935,7 +935,7 @@ function smfapi_authenticate($username='', $password='', $encrypted=true)
     // if it's not encrypted, do it now
 	if (!$encrypted) {
         $sha_passwd = sha1(strtolower($user_settings['member_name'])
-                      . smfapi_unHtmlspecialchars($password));
+                      . blestaapi_unHtmlspecialchars($password));
     } else {
         $sha_passwd = $password;
 	}
@@ -953,7 +953,7 @@ function smfapi_authenticate($username='', $password='', $encrypted=true)
 		// none of the below cases will be used most of the time
         // (because the salt is normally set)
 		if ('' == $user_settings['password_salt']) {
-			// YaBB SE, Discus, MD5 (used a lot), SHA-1 (used some), SMF 1.0.x,
+			// YaBB SE, Discus, MD5 (used a lot), SHA-1 (used some), BLESTA 1.0.x,
             // IkonBoard, and none at all
 			$other_passwords[] = crypt($password, substr($password, 0, 2));
 			$other_passwords[] = crypt($password, substr($user_settings['passwd'], 0, 2));
@@ -995,7 +995,7 @@ function smfapi_authenticate($username='', $password='', $encrypted=true)
 		} elseif (strlen($user_settings['passwd']) == 40) {
 			// maybe they are using a hash from before the password fix
 			$other_passwords[] = sha1(strtolower($user_settings['member_name'])
-                                 . smfapi_unHtmlspecialchars($password));
+                                 . blestaapi_unHtmlspecialchars($password));
 
 			// BurningBoard3 style of hashing
 			$other_passwords[] = sha1($user_settings['password_salt']
@@ -1022,17 +1022,17 @@ function smfapi_authenticate($username='', $password='', $encrypted=true)
 			}
 		}
 
-		// SMF's sha1 function can give a funny result on Linux (not our fault!)
+		// BLESTA's sha1 function can give a funny result on Linux (not our fault!)
         // if we've now got the real one let the old one be valid!
 		if (strpos(strtolower(PHP_OS), 'win') !== 0) {
 			require_once($sourcedir . '/Subs-Compat.php');
-			$other_passwords[] = sha1_smf(strtolower($user_settings['member_name']) . smfapi_unHtmlspecialchars($password));
+			$other_passwords[] = sha1_blesta(strtolower($user_settings['member_name']) . blestaapi_unHtmlspecialchars($password));
 		}
 
         // if ANY of these other hashes match we'll accept it
 		if (in_array($user_settings['passwd'], $other_passwords)) {
             // we're not going to update the password or the hash. whatever was
-            // used worked, so it will work again through this api, or SMF will
+            // used worked, so it will work again through this api, or BLESTA will
             // update it if the user authenticates through there. No sense messing
             // with it if it's not broken imo. Authentication successful
 			return true;
@@ -1048,7 +1048,7 @@ function smfapi_authenticate($username='', $password='', $encrypted=true)
  *
  * Takes a username, email or member id and logs that user out. If it can't find
  * a match it will look for the currently logged user if any. Best to leave this
- * function's arguments empty. If logoutis failing, make sure your SMF cookie is
+ * function's arguments empty. If logoutis failing, make sure your BLESTA cookie is
  * being set on path '/', otherwise we can't delete it. Also, try leaving the
  * function parameter empty to let the script auto-detect the currently logged in
  * user for you.
@@ -1057,12 +1057,12 @@ function smfapi_authenticate($username='', $password='', $encrypted=true)
  * @return bool whether logout was successful or not
  * @since  0.1.2
  */
-function smfapi_logout($username='')
+function blestaapi_logout($username='')
 {
     global $user_info, $smcFunc;
 
     if ($user_info['is_guest']) {
-        smfapi_loadUserSettings();
+        blestaapi_loadUserSettings();
     }
 
     if ('' == $username) {
@@ -1073,7 +1073,7 @@ function smfapi_logout($username='')
         }
     }
 
-    $user_data = smfapi_getUserData($username);
+    $user_data = blestaapi_getUserData($username);
 
     if (!$user_data || empty($user_data)) {
         // no user by that name
@@ -1104,7 +1104,7 @@ function smfapi_logout($username='')
     }
 
     // destroy the cookie
-	smfapi_setLoginCookie(-3600, 0);
+	blestaapi_setLoginCookie(-3600, 0);
 
     return true;
 }
@@ -1118,7 +1118,7 @@ function smfapi_logout($username='')
  * @return bool true when complete or false if user array empty
  * @since  0.1.2
  */
-function smfapi_deleteMembers($users)
+function blestaapi_deleteMembers($users)
 {
 	global $sourcedir, $modSettings, $user_info, $smcFunc;
 
@@ -1138,7 +1138,7 @@ function smfapi_deleteMembers($users)
     
     foreach ($users as &$user) {
         if (!is_int($user)) {
-            $data = smfapi_getUserData($user);
+            $data = blestaapi_getUserData($user);
             $user = intval($data['id_member']);
         }
     }
@@ -1338,7 +1338,7 @@ function smfapi_deleteMembers($users)
 	);
 
 	// delete personal messages
-	smfapi_deleteMessages(null, null, $users);
+	blestaapi_deleteMessages(null, null, $users);
 
 	$smcFunc['db_query']('', '
 		UPDATE {db_prefix}personal_messages
@@ -1423,11 +1423,11 @@ function smfapi_deleteMembers($users)
 	$smcFunc['db_free_result']($request);
 
 	// make sure no member's birthday is still sticking in the calendar...
-	smfapi_updateSettings(array(
+	blestaapi_updateSettings(array(
 		'calendar_updated' => time(),
 	));
 
-	smfapi_updateStats('member');
+	blestaapi_updateStats('member');
 
 	return true;
 }
@@ -1435,13 +1435,13 @@ function smfapi_deleteMembers($users)
 /**
  * Register a member
  *
- * Register a new member with SMF
+ * Register a new member with BLESTA
  *
  * @param  array $regOptions the registration options
  * @return int $memberId the user's member id || bool false
  * @since  0.1.2
  */
-function smfapi_registerMember($regOptions)
+function blestaapi_registerMember($regOptions)
 {
 	global $scripturl, $modSettings, $sourcedir;
 	global $user_info, $options, $settings, $smcFunc;
@@ -1453,7 +1453,7 @@ function smfapi_registerMember($regOptions)
 		$reg_errors[] = 'username empty';
     }
 
-    if (false !== smfapi_getUserbyUsername($regOptions['member_name'])) {
+    if (false !== blestaapi_getUserbyUsername($regOptions['member_name'])) {
         $reg_errors[] = 'username taken';
     }
 
@@ -1464,7 +1464,7 @@ function smfapi_registerMember($regOptions)
 		    $reg_errors[] = 'email invalid';
     }
 
-    if (false !== smfapi_getUserbyEmail($regOptions['email'])) {
+    if (false !== blestaapi_getUserbyEmail($regOptions['email'])) {
         $reg_errors[] = 'email already in use';
     }
 
@@ -1475,7 +1475,7 @@ function smfapi_registerMember($regOptions)
         if (isset($regOptions['validation_code'])) {
 		    $validation_code = $regOptions['validation_code'];
 		} else {
-            $validation_code = smfapi_generateValidationCode();
+            $validation_code = blestaapi_generateValidationCode();
 		}
     }
 
@@ -1621,9 +1621,9 @@ function smfapi_registerMember($regOptions)
 
 	// update the number of members and latest member's info - and pass the name, but remove the 's
 	if ($regOptions['register_vars']['is_activated'] == 1) {
-		smfapi_updateStats('member', $memberID, $regOptions['register_vars']['real_name']);
+		blestaapi_updateStats('member', $memberID, $regOptions['register_vars']['real_name']);
     } else {
-		smfapi_updateStats('member');
+		blestaapi_updateStats('member');
     }
 
 	// theme variables too?
@@ -1647,7 +1647,7 @@ function smfapi_registerMember($regOptions)
 }
 
 /**
- * Logs an error to the smf error log
+ * Logs an error to the blesta error log
  *
  * Logs errors of different types. Will refer to this file unless $file has a value.
  *
@@ -1659,7 +1659,7 @@ function smfapi_registerMember($regOptions)
  * @return bool true if successful, false if error logging is disabled
  * @since  0.1.2
  */
-function smfapi_logError($error_message, $error_type = 'general', $file = null, $line = null)
+function blestaapi_logError($error_message, $error_type = 'general', $file = null, $line = null)
 {
 	global $modSettings, $sc, $user_info, $smcFunc, $scripturl, $last_error;
 
@@ -1699,7 +1699,7 @@ function smfapi_logError($error_message, $error_type = 'general', $file = null, 
 	$query_string = empty($_SERVER['QUERY_STRING']) ? (empty($_SERVER['REQUEST_URL']) ? '' : str_replace($scripturl, '', $_SERVER['REQUEST_URL'])) : $_SERVER['QUERY_STRING'];
 
 	// don't log the session hash in the url twice, it's a waste.
-	$query_string = htmlspecialchars((SMF == 'API' ? '' : '?') . preg_replace(array('~;sesc=[^&;]+~', '~'
+	$query_string = htmlspecialchars((BLESTA == 'API' ? '' : '?') . preg_replace(array('~;sesc=[^&;]+~', '~'
                     . session_name() . '=' . session_id() . '[&;]~'), array(';sesc', ''), $query_string));
 
 
@@ -1743,7 +1743,7 @@ function smfapi_logError($error_message, $error_type = 'general', $file = null, 
  * @return bool true when complete, failure is not an option
  * @since  0.1.0
  */
-function smfapi_reloadSettings()
+function blestaapi_reloadSettings()
 {
 	global $modSettings, $boarddir, $smcFunc, $txt, $db_character_set, $context, $sourcedir;
 
@@ -1757,7 +1757,7 @@ function smfapi_reloadSettings()
     }
 
 	// try to load it from the cache first; it'll never get cached if the setting is off.
-	if (($modSettings = smfapi_cacheGetData('modSettings', 90)) == null) {
+	if (($modSettings = blestaapi_cacheGetData('modSettings', 90)) == null) {
 		$request = $smcFunc['db_query']('', '
 			SELECT variable, value
 			FROM {db_prefix}settings',
@@ -1778,7 +1778,7 @@ function smfapi_reloadSettings()
 		$smcFunc['db_free_result']($request);
 
 		if (!empty($modSettings['cache_enable'])) {
-			smfapi_cachePutData('modSettings', $modSettings, 90);
+			blestaapi_cachePutData('modSettings', $modSettings, 90);
         }
 	}
 
@@ -1882,7 +1882,7 @@ function smfapi_reloadSettings()
  * @return bool true when complete, failure is not an option
  * @since  0.1.2
  */
-function smfapi_loadUserSettings()
+function blestaapi_loadUserSettings()
 {
 	global $modSettings, $user_settings, $sourcedir, $smcFunc;
 	global $cookiename, $user_info, $language;
@@ -1919,7 +1919,7 @@ function smfapi_loadUserSettings()
 	if ($id_member != 0) {
 		// is the member data cached?
 		if (empty($modSettings['cache_enable']) || $modSettings['cache_enable'] < 2
-            || ($user_settings = smfapi_cacheGetData('user_settings-' . $id_member, 60)) == null) {
+            || ($user_settings = blestaapi_cacheGetData('user_settings-' . $id_member, 60)) == null) {
 			    $request = $smcFunc['db_query']('', '
 				    SELECT mem.*, IFNULL(a.id_attach, 0) AS id_attach, a.filename, a.attachment_type
 				    FROM {db_prefix}members AS mem
@@ -1935,7 +1935,7 @@ function smfapi_loadUserSettings()
 			    $smcFunc['db_free_result']($request);
 
 			    if (!empty($modSettings['cache_enable']) && $modSettings['cache_enable'] >= 2) {
-				    smfapi_cachePutData('user_settings-' . $id_member, $user_settings, 60);
+				    blestaapi_cachePutData('user_settings-' . $id_member, $user_settings, 60);
                 }
 		}
 	}
@@ -2019,7 +2019,7 @@ function smfapi_loadUserSettings()
  * @return bool true when complete, failure is not an option
  * @since  0.1.0
  */
-function smfapi_loadSession()
+function blestaapi_loadSession()
 {
 	global $HTTP_SESSION_VARS, $modSettings, $boardurl, $sc;
 
@@ -2047,7 +2047,7 @@ function smfapi_loadSession()
             && preg_match('~^[A-Za-z0-9]{16,32}$~', $_REQUEST[session_name()]) == 0
             && !isset($_COOKIE[session_name()])) {
 
-			$session_id = md5(md5('smf_sess_' . time()) . mt_rand());
+			$session_id = md5(md5('blesta_sess_' . time()) . mt_rand());
 			$_REQUEST[session_name()] = $session_id;
 			$_GET[session_name()] = $session_id;
 			$_POST[session_name()] = $session_id;
@@ -2057,9 +2057,9 @@ function smfapi_loadSession()
 		if (!empty($modSettings['databaseSession_enable'])
             && @version_compare(PHP_VERSION, '4.2.0') != -1) {
 
-			session_set_save_handler('smfapi_sessionOpen', 'smfapi_sessionClose',
-                                     'smfapi_sessionRead', 'smfapi_sessionWrite',
-                                     'smfapi_sessionDestroy', 'smfapi_sessionGC');
+			session_set_save_handler('blestaapi_sessionOpen', 'blestaapi_sessionClose',
+                                     'blestaapi_sessionRead', 'blestaapi_sessionWrite',
+                                     'blestaapi_sessionDestroy', 'blestaapi_sessionGC');
 			@ini_set('session.gc_probability', '1');
 		} elseif (@ini_get('session.gc_maxlifetime') <= 1440
                   && !empty($modSettings['databaseSession_lifetime'])) {
@@ -2116,7 +2116,7 @@ function smfapi_loadSession()
  * @return true
  * @since  0.1.0
  */
-function smfapi_sessionOpen($save_path, $session_name)
+function blestaapi_sessionOpen($save_path, $session_name)
 {
 	return true;
 }
@@ -2129,7 +2129,7 @@ function smfapi_sessionOpen($save_path, $session_name)
  * @return true
  * @since  0.1.0
  */
-function smfapi_sessionClose()
+function blestaapi_sessionClose()
 {
 	return true;
 }
@@ -2144,7 +2144,7 @@ function smfapi_sessionClose()
  *         isn't valid or there is no session data to return
  * @since  0.1.0
  */
-function smfapi_sessionRead($session_id)
+function blestaapi_sessionRead($session_id)
 {
 	global $smcFunc;
 
@@ -2182,7 +2182,7 @@ function smfapi_sessionRead($session_id)
  * @return bool true when complete, false if the session code isn't valid
  * @since  0.1.0
  */
-function smfapi_sessionWrite($session_id, $data)
+function blestaapi_sessionWrite($session_id, $data)
 {
 	global $smcFunc;
 
@@ -2224,7 +2224,7 @@ function smfapi_sessionWrite($session_id, $data)
  * @return bool true || string db error || false if the session code isn't valid
  * @since  0.1.0
  */
-function smfapi_sessionDestroy($session_id)
+function blestaapi_sessionDestroy($session_id)
 {
 	global $smcFunc;
 
@@ -2251,7 +2251,7 @@ function smfapi_sessionDestroy($session_id)
  * @return bool true || string db error
  * @since  0.1.0
  */
-function smfapi_sessionGC($max_lifetime)
+function blestaapi_sessionGC($max_lifetime)
 {
 	global $modSettings, $smcFunc;
 
@@ -2281,7 +2281,7 @@ function smfapi_sessionGC($max_lifetime)
  * @return bool if the db connection exists or not
  * @since  0.1.0
  */
-function smfapi_loadDatabase()
+function blestaapi_loadDatabase()
 {
 	global $db_persist, $db_connection, $db_server, $db_user, $db_passwd;
 	global $db_type, $db_name, $sourcedir, $db_prefix;
@@ -2296,7 +2296,7 @@ function smfapi_loadDatabase()
 
 	// make connection
 	if (empty($db_connection)) {
-		$db_connection = smf_db_initiate($db_server, $db_name, $db_user, $db_passwd, $db_prefix, array('persist' => $db_persist, 'dont_select_db' => SMF == 'API'));
+		$db_connection = blesta_db_initiate($db_server, $db_name, $db_user, $db_passwd, $db_prefix, array('persist' => $db_persist, 'dont_select_db' => BLESTA == 'API'));
     }
 
 	// safe guard here, if there isn't a valid connection lets put a stop to it.
@@ -2321,7 +2321,7 @@ function smfapi_loadDatabase()
  * @return void
  * @since  0.1.0
  */
-function smfapi_cachePutData($key, $value, $ttl = 120)
+function blestaapi_cachePutData($key, $value, $ttl = 120)
 {
 	global $boardurl, $sourcedir, $modSettings, $memcached;
 	global $cache_hits, $cache_count, $db_show_debug, $cachedir;
@@ -2340,7 +2340,7 @@ function smfapi_cachePutData($key, $value, $ttl = 120)
 	}
 
 	$key = md5($boardurl . filemtime($sourcedir . '/Load.php'))
-           . '-SMF-' . strtr($key, ':', '-');
+           . '-BLESTA-' . strtr($key, ':', '-');
 	$value = $value === null ? null : serialize($value);
 
 	// eAccelerator...
@@ -2371,9 +2371,9 @@ function smfapi_cachePutData($key, $value, $ttl = 120)
 	elseif (function_exists('apc_store')) {
 		// An extended key is needed to counteract a bug in APC.
 		if ($value === null) {
-			apc_delete($key . 'smf');
+			apc_delete($key . 'blesta');
         } else {
-			apc_store($key . 'smf', $value, $ttl);
+			apc_store($key . 'blesta', $value, $ttl);
         }
 	}
 	// zend Platform/ZPS/etc.
@@ -2391,7 +2391,7 @@ function smfapi_cachePutData($key, $value, $ttl = 120)
 		if ($value === null) {
 			@unlink($cachedir . '/data_' . $key . '.php');
         } else {
-			$cache_data = '<' . '?' . 'php if (!defined(\'SMF\')) die; if ('
+			$cache_data = '<' . '?' . 'php if (!defined(\'BLESTA\')) die; if ('
                           . (time() + $ttl)
                           . ' < time()) $expired = true; else{$expired = false; $value = \''
                           . addcslashes($value, '\\\'') . '\';}' . '?' . '>';
@@ -2431,7 +2431,7 @@ function smfapi_cachePutData($key, $value, $ttl = 120)
  * @return mixed $value the cache data or null
  * @since  0.1.0
  */
-function smfapi_cacheGetData($key, $ttl = 120)
+function blestaapi_cacheGetData($key, $ttl = 120)
 {
 	global $boardurl, $sourcedir, $modSettings, $memcached;
 	global $cache_hits, $cache_count, $db_show_debug, $cachedir;
@@ -2448,7 +2448,7 @@ function smfapi_cacheGetData($key, $ttl = 120)
 	}
 
 	$key = md5($boardurl . filemtime($sourcedir . '/Load.php'))
-           . '-SMF-' . strtr($key, ':', '-');
+           . '-BLESTA-' . strtr($key, ':', '-');
 
 	// again, eAccelerator.
 	if (function_exists('eaccelerator_get')) {
@@ -2460,7 +2460,7 @@ function smfapi_cacheGetData($key, $ttl = 120)
     }
 	// this is the free APC from PECL.
 	elseif (function_exists('apc_fetch')) {
-		$value = apc_fetch($key . 'smf');
+		$value = apc_fetch($key . 'blesta');
     }
 	// zend's pricey stuff.
 	elseif (function_exists('output_cache_get')) {
@@ -2468,7 +2468,7 @@ function smfapi_cacheGetData($key, $ttl = 120)
     } elseif (function_exists('xcache_get') && ini_get('xcache.var_size') > 0) {
 		$value = xcache_get($key);
     }
-	// otherwise it's SMF data!
+	// otherwise it's BLESTA data!
 	elseif (file_exists($cachedir . '/data_' . $key . '.php')
             && filesize($cachedir . '/data_' . $key . '.php') > 10) {
 
@@ -2505,7 +2505,7 @@ function smfapi_cacheGetData($key, $ttl = 120)
  * @return bool whether update was successful or not
  * @since  0.1.0
  */
-function smfapi_updateMemberData($member='', $data='')
+function blestaapi_updateMemberData($member='', $data='')
 {
 	global $modSettings, $user_info, $smcFunc;
 
@@ -2513,7 +2513,7 @@ function smfapi_updateMemberData($member='', $data='')
         return false;
     }
 
-    $user_data = smfapi_getUserData($member);
+    $user_data = blestaapi_getUserData($member);
 
     if (!$user_data) {
         $member = $user_info['id'];
@@ -2563,11 +2563,11 @@ function smfapi_updateMemberData($member='', $data='')
         && !empty($members)) {
 
         if ($modSettings['cache_enable'] >= 3) {
-            smfapi_cachePutData('member_data-profile-' . $member, null, 120);
-            smfapi_cachePutData('member_data-normal-' . $member, null, 120);
-            smfapi_cachePutData('member_data-minimal-' . $member, null, 120);
+            blestaapi_cachePutData('member_data-profile-' . $member, null, 120);
+            blestaapi_cachePutData('member_data-normal-' . $member, null, 120);
+            blestaapi_cachePutData('member_data-minimal-' . $member, null, 120);
         }
-        smfapi_cachePutData('user_settings-' . $member, null, 60);
+        blestaapi_cachePutData('user_settings-' . $member, null, 60);
 	}
 
     return true;
@@ -2581,14 +2581,14 @@ function smfapi_updateMemberData($member='', $data='')
  * @return bool true when complete
  * @since  0.1.0
  */
-function smfapi_smfSeedGenerator()
+function blestaapi_blestaSeedGenerator()
 {
 	global $modSettings;
 
 	// never existed?
 	if (empty($modSettings['rand_seed'])) {
 		$modSettings['rand_seed'] = microtime() * 1000000;
-		smfapi_updateSettings(array('rand_seed' => $modSettings['rand_seed']));
+		blestaapi_updateSettings(array('rand_seed' => $modSettings['rand_seed']));
 	}
 
 	if (@version_compare(PHP_VERSION, '4.2.0') == -1) {
@@ -2597,13 +2597,13 @@ function smfapi_smfSeedGenerator()
 	}
 
 	// update the settings with the new seed
-	smfapi_updateSettings(array('rand_seed' => mt_rand()));
+	blestaapi_updateSettings(array('rand_seed' => mt_rand()));
 
     return true;
 }
 
 /**
- * Update SMF settings
+ * Update BLESTA settings
  *
  * Updates settings in the $modSettings array and stores them in the db. Also
  * clears the modSettings cache
@@ -2614,7 +2614,7 @@ function smfapi_smfSeedGenerator()
  * @return bool whether settings were changed or not
  * @since  0.1.0
  */
-function smfapi_updateSettings($changeArray, $update = false, $debug = false)
+function blestaapi_updateSettings($changeArray, $update = false, $debug = false)
 {
 	global $modSettings, $smcFunc;
 
@@ -2638,7 +2638,7 @@ function smfapi_updateSettings($changeArray, $update = false, $debug = false)
 		}
 
 		// clean out the cache and make sure the cobwebs are gone too
-		smfapi_cachePutData('modSettings', null, 90);
+		blestaapi_cachePutData('modSettings', null, 90);
 
 		return true;
 	}
@@ -2671,7 +2671,7 @@ function smfapi_updateSettings($changeArray, $update = false, $debug = false)
 	);
 
 	// clear the cache of modsettings data
-	smfapi_cachePutData('modSettings', null, 90);
+	blestaapi_cachePutData('modSettings', null, 90);
 
     return true;
 }
@@ -2683,11 +2683,11 @@ function smfapi_updateSettings($changeArray, $update = false, $debug = false)
  *
  * @param  int $cookie_length cookie length in seconds
  * @param  int $id the user's member id
- * @param  string $password the password already hashed with SMF's encryption
+ * @param  string $password the password already hashed with BLESTA's encryption
  * @return true on completion
  * @since  0.1.2
  */
-function smfapi_setLoginCookie($cookie_length, $id, $password = '')
+function blestaapi_setLoginCookie($cookie_length, $id, $password = '')
 {
 	global $cookiename, $boardurl, $modSettings;
 
@@ -2704,14 +2704,14 @@ function smfapi_setLoginCookie($cookie_length, $id, $password = '')
 
 		// out with the old, in with the new
 		if (isset($array[3]) && $array[3] != $cookie_state) {
-			$cookie_url = smfapi_urlParts($array[3] & 1 > 0, $array[3] & 2 > 0);
+			$cookie_url = blestaapi_urlParts($array[3] & 1 > 0, $array[3] & 2 > 0);
 			setcookie($cookiename, serialize(array(0, '', 0)), time() - 3600, $cookie_url[1], $cookie_url[0], !empty($modSettings['secureCookies']));
 		}
 	}
 
 	// get the data and path to set it on
 	$data = serialize(empty($id) ? array(0, '', 0) : array($id, $password, time() + $cookie_length, $cookie_state));
-	$cookie_url = smfapi_urlParts(!empty($modSettings['localCookies']), !empty($modSettings['globalCookies']));
+	$cookie_url = blestaapi_urlParts(!empty($modSettings['localCookies']), !empty($modSettings['globalCookies']));
 
 	// set the cookie, $_COOKIE, and session variable
 	setcookie($cookiename, $data, time() + $cookie_length, $cookie_url[1], $cookie_url[0], !empty($modSettings['secureCookies']));
@@ -2731,7 +2731,7 @@ function smfapi_setLoginCookie($cookie_length, $id, $password = '')
 			$alias = strtr(trim($alias), array('http://' => '', 'https://' => ''));
 			$boardurl = 'http://' . $alias;
 
-			$cookie_url = smfapi_urlParts(!empty($modSettings['localCookies']), !empty($modSettings['globalCookies']));
+			$cookie_url = blestaapi_urlParts(!empty($modSettings['localCookies']), !empty($modSettings['globalCookies']));
 
 			if ($cookie_url[0] == '') {
 				$cookie_url[0] = strtok($alias, '/');
@@ -2794,7 +2794,7 @@ if (!function_exists('session_regenerate_id')) {
  * @return array with domain and path for the cookie to set using
  * @since  0.1.0
  */
-function smfapi_urlParts($local, $global)
+function blestaapi_urlParts($local, $global)
 {
 	global $boardurl;
 
@@ -2835,7 +2835,7 @@ function smfapi_urlParts($local, $global)
  * @return bool whether stats were updated or not
  * @since  0.1.0
  */
-function smfapi_updateStats($type='member', $parameter1 = null, $parameter2 = null)
+function blestaapi_updateStats($type='member', $parameter1 = null, $parameter2 = null)
 {
 	global $sourcedir, $modSettings, $smcFunc;
 
@@ -2851,7 +2851,7 @@ function smfapi_updateStats($type='member', $parameter1 = null, $parameter2 = nu
 			    $changes['latestMember'] = $parameter1;
 			    $changes['latestRealName'] = $parameter2;
 
-			    smfapi_updateSettings(array('totalMembers' => true), true);
+			    blestaapi_updateSettings(array('totalMembers' => true), true);
 		    }
 		    // we need to calculate the totals.
 		    else {
@@ -2899,7 +2899,7 @@ function smfapi_updateStats($type='member', $parameter1 = null, $parameter2 = nu
 			    }
 		    }
 
-		smfapi_updateSettings($changes);
+		blestaapi_updateSettings($changes);
 		break;
 
 		default:
@@ -2918,7 +2918,7 @@ function smfapi_updateStats($type='member', $parameter1 = null, $parameter2 = nu
  * @return string the string with special entities removed
  * @since  0.1.0
  */
-function smfapi_unHtmlspecialchars($string)
+function blestaapi_unHtmlspecialchars($string)
 {
 	static $translation;
 
@@ -2941,7 +2941,7 @@ function smfapi_unHtmlspecialchars($string)
  * @return bool whether deletion occurred or not
  * @since  0.1.0
  */
-function smfapi_deleteMessages($personal_messages, $folder = null, $owner = null)
+function blestaapi_deleteMessages($personal_messages, $folder = null, $owner = null)
 {
 	global $user_info, $smcFunc;
 
@@ -2999,10 +2999,10 @@ function smfapi_deleteMessages($personal_messages, $folder = null, $owner = null
 		// ...and update the statistics accordingly - now including unread messages
 		while ($row = $smcFunc['db_fetch_assoc']($request)) {
 			if ($row['is_read']) {
-				smfapi_updateMemberData($row['id_member'], array('instant_messages' => $where == '' ? 0 : 'instant_messages - '
+				blestaapi_updateMemberData($row['id_member'], array('instant_messages' => $where == '' ? 0 : 'instant_messages - '
                                  . $row['num_deleted_messages']));
             } else {
-				smfapi_updateMemberData($row['id_member'], array('instant_messages' => $where == '' ? 0 : 'instant_messages - '
+				blestaapi_updateMemberData($row['id_member'], array('instant_messages' => $where == '' ? 0 : 'instant_messages - '
                                  . $row['num_deleted_messages'], 'unread_messages' => $where == '' ? 0 : 'unread_messages - '
                                  . $row['num_deleted_messages']));
             }
@@ -3075,7 +3075,7 @@ function smfapi_deleteMessages($personal_messages, $folder = null, $owner = null
 	}
 
 	// any cached numbers may be wrong now
-	smfapi_cachePutData('labelCounts:' . $user_info['id'], null, 720);
+	blestaapi_cachePutData('labelCounts:' . $user_info['id'], null, 720);
 
 	return true;
 }
@@ -3088,7 +3088,7 @@ function smfapi_deleteMessages($personal_messages, $folder = null, $owner = null
  * @return string random validation code (10 char)
  * @since  0.1.0
  */
-function smfapi_generateValidationCode()
+function blestaapi_generateValidationCode()
 {
 	global $smcFunc, $modSettings;
 
@@ -3114,11 +3114,11 @@ function smfapi_generateValidationCode()
  * @return bool whether the user is online or not
  * @since  0.1.0
  */
-function smfapi_isOnline($username='')
+function blestaapi_isOnline($username='')
 {
 	global $smcFunc;
 
-    $user_data = smfapi_getUserData($username);
+    $user_data = blestaapi_getUserData($username);
 
     if (!$user_data) {
         return false;
@@ -3150,11 +3150,11 @@ function smfapi_isOnline($username='')
  * @return bool whether they were logged online or not
  * @since  0.1.0
  */
-function smfapi_logOnline($username='')
+function blestaapi_logOnline($username='')
 {
     global $smcFunc, $modSettings;
 
-    $user_data = smfapi_getUserData($username);
+    $user_data = blestaapi_getUserData($username);
 
     if (!$user_data) {
         return false;
@@ -3164,7 +3164,7 @@ function smfapi_logOnline($username='')
         return false;
     }
 
-    if (smfapi_isOnline($username)) {
+    if (blestaapi_isOnline($username)) {
         $do_delete = true;
     } else {
         $do_delete = false;
@@ -3219,7 +3219,7 @@ function smfapi_logOnline($username='')
  * @return array $matches the matching files found
  * @since  0.1.0
  */
-function smfapi_getMatchingFile($files, $search)
+function blestaapi_getMatchingFile($files, $search)
 {
     $matches = array();
 
@@ -3273,13 +3273,13 @@ function smfapi_getMatchingFile($files, $search)
  * @return array $files the files found
  * @since  0.1.0
  */
-function smfapi_getDirectoryContents($directory, $exempt = array('.', '..'), &$files = array()) {
+function blestaapi_getDirectoryContents($directory, $exempt = array('.', '..'), &$files = array()) {
     $handle = opendir($directory);
     while (false !== ($resource = readdir($handle))) {
         if (!in_array(strtolower($resource), $exempt)) {
             if (is_dir($directory . $resource . '/')) {
                 array_merge($files,
-                    smfapi_getDirectoryContents($directory . $resource . '/', $exempt, $files));
+                    blestaapi_getDirectoryContents($directory . $resource . '/', $exempt, $files));
             } else {
                 $files[] = $directory . $resource;
             }
